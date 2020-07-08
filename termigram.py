@@ -141,7 +141,7 @@ class Termigram:
         print('\r[{}] {} {} >>> {}'.format(
             dt.strftime('%H:%M'), 
             colored(self.dialog.name, 'yellow') if self.dialog.is_group else '', 
-            colored(sender, 'red'), 
+            colored(sender, 'magenta'), 
             colored(text, 'green')
         ))
         self.next_line()
@@ -151,7 +151,7 @@ class Termigram:
         self.next_line()
 
     def print_error(self, error):
-        print('FAIL: ' + str(error))
+        print(colored('FAIL: ' + str(error), 'red'))
         self.next_line()
 
     def next_line(self):
