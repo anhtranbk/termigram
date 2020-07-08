@@ -8,8 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from telethon import TelegramClient, events
 from telethon.tl.custom.message import Message
 from telethon.tl.custom.dialog import Dialog
-from colorama import Fore, Back, Style 
-from colorama import init 
+from colorama import Fore, Back, Style, init
 from termcolor import colored
 
 
@@ -39,7 +38,6 @@ class StdinReader:
 
     def got_stdin_data(self, callback):
         self.loop.create_task(callback(sys.stdin.readline().strip()))
-        # callback(sys.stdin.readline())
 
 
 class TermigramError(Exception):
@@ -121,6 +119,10 @@ class Termigram:
             self.print_error(e)
 
     async def join_conv(self, conv):
+        if not self.participants:
+            me = await self.client.get_me()
+            self.participants[me.id] = self.parse_username(me)
+
         self.dialog = None
         async for dialog in client.iter_dialogs():
             if conv == dialog.title:
@@ -132,10 +134,7 @@ class Termigram:
 
         chat = self.dialog.entity
         async for user in client.iter_participants(chat):
-            fname = user.first_name or ''
-            lname = user.last_name or ''
-            username = fname + ' ' + lname
-            self.participants[user.id] = username.strip()
+            self.participants[user.id] = self.parse_username(user).strip()
 
     def print_message(self, dt, sender, text):
         # [22:58]  Mãi là anh em (MLAE Corp) KhanhTN F9 >>> sample message
@@ -158,7 +157,12 @@ class Termigram:
     def next_line(self):
         msg = '{} >>> '.format(self.dialog.title) if self.dialog else '>>> '
         print(msg, end='', flush=True)
-        
+
+    @staticmethod
+    def parse_username(user):
+        fname = user.first_name or ''
+        lname = user.last_name or ''
+        return fname + ' ' + lname
 
 
 if __name__ == '__main__':
