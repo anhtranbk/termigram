@@ -8,6 +8,10 @@ from concurrent.futures import ThreadPoolExecutor
 from telethon import TelegramClient, events
 from telethon.tl.custom.message import Message
 from telethon.tl.custom.dialog import Dialog
+from colorama import Fore, Back, Style 
+from colorama import init 
+from termcolor import colored
+
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
                     level=logging.WARNING)
@@ -134,11 +138,12 @@ class Termigram:
             self.participants[user.id] = username.strip()
 
     def print_message(self, dt, sender, text):
-        # [22:58]  Mãi là anh em (MLAE Corp) KhanhTN F9 >>> à ko có ạ =)))
+        # [22:58]  Mãi là anh em (MLAE Corp) KhanhTN F9 >>> sample message
         print('\r[{}] {} {} >>> {}'.format(
             dt.strftime('%H:%M'), 
-            self.dialog.name, 
-            sender, text
+            colored(self.dialog.name, 'yellow') if self.dialog.is_group else '', 
+            colored(sender, 'red'), 
+            colored(text, 'green')
         ))
         self.next_line()
 
@@ -153,6 +158,7 @@ class Termigram:
     def next_line(self):
         msg = '{} >>> '.format(self.dialog.title) if self.dialog else '>>> '
         print(msg, end='', flush=True)
+        
 
 
 if __name__ == '__main__':
