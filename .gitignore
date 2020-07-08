@@ -1,0 +1,4 @@
+.venv/
+*.pyc
+*.pyo
+.DS_Store
