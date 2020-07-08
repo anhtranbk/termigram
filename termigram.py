@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from telethon import TelegramClient, events
 from telethon.tl.custom.message import Message
+from telethon.tl.custom.dialog import Dialog
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
                     level=logging.WARNING)
@@ -48,8 +49,7 @@ class TermigramError(Exception):
 class Termigram:
 
     def __init__(self, client):
-        self.conv = ''
-        self.dialog = None
+        self.dialog: Dialog = None
         self.client: TelegramClient = client
         self.participants = dict()
 
@@ -66,11 +66,15 @@ class Termigram:
 
     async def on_telegram_new_message(self, event):
         msg = event.message
-        self.print_message(
-            msg.date, 
-            self.participants.get(msg.from_id, 'unknown'), 
-            msg.text
-        )
+        # print(msg.sender_id)
+        # print(msg.chat_id)
+        # print(self.dialog.entity.id)
+        if self.dialog and self.dialog.entity.id == abs(msg.chat_id):
+            self.print_message(
+                msg.date, 
+                self.participants.get(msg.from_id, 'unknown'), 
+                msg.text
+            )
 
     async def stdin_event_handler(self, text: str):
         if not text:
@@ -81,10 +85,10 @@ class Termigram:
             await self.send_message(text)
 
     async def send_message(self, text):
-        if not self.conv:
+        if not self.dialog:
             self.print_error('You must join a conversation before sending a message')
             return
-        await self.client.send_message(self.conv, text)
+        await self.dialog.send_message(text)
         self.next_line()
 
     async def handle_command(self, cmd: str):
@@ -113,13 +117,11 @@ class Termigram:
             self.print_error(e)
 
     async def join_conv(self, conv):
-        # iter_participants
         self.dialog = None
         async for dialog in client.iter_dialogs():
             if conv == dialog.title:
-                self.conv = conv
                 self.dialog = dialog
-                self.print_info('Joined to {}'.format(self.conv))
+                self.print_info('Joined to {}'.format(self.dialog.title))
                 break
         if not self.dialog:
             raise ValueError('Conversation name does not exist')
@@ -128,11 +130,16 @@ class Termigram:
         async for user in client.iter_participants(chat):
             fname = user.first_name or ''
             lname = user.last_name or ''
-            self.participants[user.id] = fname + ' ' + lname
+            username = fname + ' ' + lname
+            self.participants[user.id] = username.strip()
 
     def print_message(self, dt, sender, text):
         # [22:58]  Mãi là anh em (MLAE Corp) KhanhTN F9 >>> à ko có ạ =)))
-        print('\r[{}] {} {} >>> {}'.format(dt.strftime('%H:%M'), self.conv, sender, text))
+        print('\r[{}] {} {} >>> {}'.format(
+            dt.strftime('%H:%M'), 
+            self.dialog.name, 
+            sender, text
+        ))
         self.next_line()
 
     def print_info(self, info):
@@ -144,7 +151,7 @@ class Termigram:
         self.next_line()
 
     def next_line(self):
-        msg = '{} >>> '.format(self.conv) if self.conv else '>>> '
+        msg = '{} >>> '.format(self.dialog.title) if self.dialog else '>>> '
         print(msg, end='', flush=True)
 
 
