@@ -77,7 +77,7 @@ class Termigram:
         if not username: 
             sender = await event.get_sender()
             username = self.parse_username(sender)
-
+            self.participants[sender.id] = username
         self.print_message(event.date, username, event.text)
 
     async def on_user_update(self, event):
