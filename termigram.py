@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from telethon import TelegramClient, events
 from telethon.tl.custom.message import Message
 from telethon.tl.custom.dialog import Dialog
-from colorama import Fore, Back, Style, init
+from colorama import init
 from termcolor import colored
 from dateutil import tz
 
@@ -136,7 +136,7 @@ class Termigram:
 
         chat = self.dialog.entity
         async for user in client.iter_participants(chat):
-            self.participants[user.id] = self.parse_username(user).strip()
+            self.participants[user.id] = self.parse_username(user)
 
     def print_message(self, dt, sender, text):
         print('\r[{}] {} {} >>> {}'.format(
@@ -164,7 +164,8 @@ class Termigram:
     def parse_username(user):
         fname = user.first_name or ''
         lname = user.last_name or ''
-        return fname + ' ' + lname
+        username = fname + ' ' + lname
+        return username.strip()
 
 
 if __name__ == '__main__':
