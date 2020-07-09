@@ -107,9 +107,9 @@ class Termigram:
                     raise TermigramError('Command malformed')
                 await self.join_conv(cmd[idx+1:])
             elif cmd == ':conv_list':
-                async for dialog in client.iter_dialogs():
-                    print(dialog.title)
-                self.next_line()
+                titles = [dialog.title async for dialog in self.client.iter_dialogs() 
+                            if dialog.title]
+                self.print_info('\n'.join(titles))
             elif cmd == ':help':
                 self.print_info("""List commands:
                 :conv_list:         Print all open conversations/subscribed channels
@@ -117,8 +117,8 @@ class Termigram:
                 :events [on/off]:   Turn on/off event listener when a new message arrives, 
                                     when a member joins, when someone starts typing, etc
                 """)
-            elif cmd == ':quit':
-                sys.exit(0)
+            elif cmd.startswith(':events'):
+                raise NotImplementedError('Not implemented command')
             else:
                 raise TermigramError('Command not found')
         except Exception as e:
@@ -149,7 +149,7 @@ class Termigram:
         self.next_line()
 
     def print_info(self, info):
-        print(info)
+        print(colored(info, 'cyan'))
         self.next_line()
 
     def print_error(self, error):
