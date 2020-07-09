@@ -51,9 +51,12 @@ class TermigramError(Exception):
 class Termigram:
 
     def __init__(self, client):
+        self.participants = dict()
         self.dialog: Dialog = None
         self.client: TelegramClient = client
-        self.participants = dict()
+
+        self.client.add_event_handler(self.on_new_message, events.NewMessage)
+        self.client.add_event_handler(self.on_user_update, events.UserUpdate)
 
     def run_forever(self):
         stdin = StdinReader(self.client.loop)
@@ -62,21 +65,23 @@ class Termigram:
 
         # The first parameter is the .session file name (absolute paths allowed)
         with self.client:
+            # self.client.loop.run_until_complete()
             self.client.run_until_disconnected()
 
         stdin.stop()
 
-    async def on_telegram_new_message(self, event):
-        msg = event.message
-        # print(msg.sender_id)
-        # print(msg.chat_id)
-        # print(self.dialog.entity.id)
-        if self.dialog and self.dialog.entity.id == abs(msg.chat_id):
-            self.print_message(
-                msg.date, 
-                self.participants.get(msg.from_id, 'unknown'), 
-                msg.text
-            )
+    async def on_new_message(self, event):
+        if not self.dialog or self.dialog.entity.id != abs(event.chat_id):
+            return
+        username = self.participants.get(event.from_id)
+        if not username: 
+            sender = await event.get_sender()
+            username = self.parse_username(sender)
+
+        self.print_message(event.date, username, event.text)
+
+    async def on_user_update(self, event):
+        pass
 
     async def stdin_event_handler(self, text: str):
         if not text:
@@ -119,10 +124,6 @@ class Termigram:
             self.print_error(e)
 
     async def join_conv(self, conv):
-        if not self.participants:
-            me = await self.client.get_me()
-            self.participants[me.id] = self.parse_username(me)
-
         self.dialog = None
         async for dialog in client.iter_dialogs():
             if conv == dialog.title:
@@ -140,7 +141,8 @@ class Termigram:
         # [22:58]  Mãi là anh em (MLAE Corp) KhanhTN F9 >>> sample message
         print('\r[{}] {} {} >>> {}'.format(
             dt.strftime('%H:%M'), 
-            colored(self.dialog.name, 'yellow') if self.dialog.is_group else '', 
+            colored(self.dialog.name, 'yellow') \
+                if self.dialog.is_group or self.dialog.is_channel else '', 
             colored(sender, 'magenta'), 
             colored(text, 'green')
         ))
@@ -167,5 +169,4 @@ class Termigram:
 
 if __name__ == '__main__':
     app = Termigram(client)
-    client.add_event_handler(app.on_telegram_new_message, events.NewMessage)
     app.run_forever()
