@@ -113,7 +113,7 @@ class Termigram:
             elif cmd == ':help':
                 self.print_info("""List commands:
                 :conv_list:         Print all open conversations/subscribed channels
-                :join <conv_name>:  Join into a conversation
+                :join <conv_name>:  Join to a conversation
                 :events [on/off]:   Turn on/off event listener when a new message arrives, 
                                     when a member joins, when someone starts typing, etc
                 """)
