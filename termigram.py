@@ -10,6 +10,7 @@ from telethon.tl.custom.message import Message
 from telethon.tl.custom.dialog import Dialog
 from colorama import Fore, Back, Style, init
 from termcolor import colored
+from dateutil import tz
 
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
@@ -138,9 +139,8 @@ class Termigram:
             self.participants[user.id] = self.parse_username(user).strip()
 
     def print_message(self, dt, sender, text):
-        # [22:58]  Mãi là anh em (MLAE Corp) KhanhTN F9 >>> sample message
         print('\r[{}] {} {} >>> {}'.format(
-            dt.strftime('%H:%M'), 
+            dt.astimezone(tz.tzlocal()).strftime('%H:%M:%S'), 
             colored(self.dialog.name, 'yellow') \
                 if self.dialog.is_group or self.dialog.is_channel else '', 
             colored(sender, 'magenta'), 
