@@ -141,8 +141,7 @@ class Termigram:
     def print_message(self, dt, sender, text):
         print('\r[{}] {} {} >>> {}'.format(
             dt.astimezone(tz.tzlocal()).strftime('%H:%M:%S'), 
-            colored(self.dialog.name, 'yellow') \
-                if self.dialog.is_group or self.dialog.is_channel else '', 
+            colored(self.dialog.name, 'yellow') if not self.dialog.is_user else ''
             colored(sender, 'magenta'), 
             colored(text, 'green')
         ))
