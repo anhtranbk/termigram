@@ -6,7 +6,10 @@ Terrmigram
 
 **Termigram** is a Telegram clients for the Linux command line, mainly based on Telethon_ which is an asyncio_ **Python 3** MTProto_ library to interact with Telegram_'s API.
 
+Demo
+-------------
 
+![demo](https://raw.githubusercontent.com/tjeubaoit/termigram/master/termigram_demo.gif)
 
 What is this?
 -------------
