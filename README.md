@@ -21,6 +21,7 @@ Installing
 
 ```sh
     pip3 install -r requirements.txt
+    python termigram.py
 ```
 
 
