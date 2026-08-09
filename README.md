@@ -1,3 +1,5 @@
+
+
 Termigram
 ========
 
@@ -34,9 +36,7 @@ In order to use **Termigram**, you need to get your own **api_id** and
 ```python
     api_id = 12345
     api_hash = '0123456789abcdef0123456789abcdef'
-
-    client = TelegramClient('session_name', api_id, api_hash)
-    client.start()
+    client = TelegramClient('anon', api_id, api_hash)
 ```
 
 
@@ -49,7 +49,3 @@ More cool features are expected to be released soon along with an in-depth expla
 - MTProto: https://core.telegram.org/mtproto
 - Telegram: https://telegram.org
 - Telethon: https://github.com/LonamiWebs/Telethon
-
-
-
-
